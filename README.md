@@ -91,3 +91,6 @@ Essa solução é boa para uso pessoal, mas não é uma API segura de nível pro
 A planilha pode continuar privada, mas o endpoint do Apps Script fica acessível para quem souber a URL. A proteção básica é a `API_SECRET`.
 
 Não coloque sua `API_SECRET` dentro do código publicado no GitHub. Digite a chave pela tela do site; ela fica salva só no navegador.
+
+
+Atualização para republicar o GitHub Pages.
