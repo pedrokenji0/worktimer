@@ -1,0 +1,1288 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Controle de expediente</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --soft: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --line: #374151;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, .16);
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1e293b, var(--bg));
+      color: var(--text);
+      padding: 24px;
+    }
+
+    main {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+    }
+
+    h1, h2, h3 { margin: 0; }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 4rem);
+      letter-spacing: -0.06em;
+      line-height: .95;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      margin-bottom: 14px;
+    }
+
+    p { color: var(--muted); }
+
+    .top {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: rgba(17, 24, 39, .94);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, .22);
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+    label {
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #020617;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font: inherit;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 74px;
+      resize: vertical;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .percent {
+      font-size: clamp(3.6rem, 12vw, 8rem);
+      font-weight: 900;
+      letter-spacing: -0.08em;
+      line-height: .92;
+      margin: 12px 0 16px;
+    }
+
+    .bar-wrap {
+      height: 28px;
+      background: #020617;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar {
+      width: 0%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #16a34a, #84cc16);
+      transition: width .35s ease;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .stat {
+      background: rgba(2, 6, 23, .72);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 16px;
+      padding: 13px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 1.15rem;
+      margin-top: 4px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+      align-items: center;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font: inherit;
+      font-weight: 750;
+      cursor: pointer;
+      background: var(--accent);
+      color: #052e16;
+    }
+
+    button.secondary {
+      background: var(--soft);
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    button.warning {
+      background: #3b2a10;
+      color: #fde68a;
+      border: 1px solid #92400e;
+    }
+
+    button.danger {
+      background: #3f1d1d;
+      color: #fecaca;
+      border: 1px solid #7f1d1d;
+    }
+
+    button:disabled {
+      opacity: .52;
+      cursor: not-allowed;
+    }
+
+    .status {
+      min-height: 24px;
+      color: var(--muted);
+      margin-top: 12px;
+    }
+
+    .task-list, .history-list, .timeline {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .task, .history-item, .timeline-item {
+      background: rgba(2, 6, 23, .68);
+      border: 1px solid rgba(255, 255, 255, .08);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .task-head, .history-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .task-title {
+      font-weight: 800;
+      font-size: 1rem;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: .86rem;
+      line-height: 1.45;
+      margin-top: 6px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: .78rem;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .badge.ok { color: #bbf7d0; border-color: #166534; background: rgba(22, 101, 52, .2); }
+    .badge.warn { color: #fde68a; border-color: #92400e; background: rgba(146, 64, 14, .2); }
+    .badge.danger { color: #fecaca; border-color: #7f1d1d; background: rgba(127, 29, 29, .2); }
+
+    .small-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .small-actions button {
+      font-size: .84rem;
+      padding: 8px 10px;
+    }
+
+    .muted { color: var(--muted); }
+    .hidden { display: none !important; }
+
+    details {
+      background: rgba(17, 24, 39, .8);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 18px;
+      padding: 14px 16px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    .section-stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    @media (max-width: 920px) {
+      body { padding: 14px; }
+      .layout, .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .stats { grid-template-columns: 1fr; }
+      .task-head, .history-head { display: grid; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="top">
+      <h1>Controle de expediente</h1>
+      <p>Expediente, tarefas, duração real e histórico salvos em uma planilha Google.</p>
+    </section>
+
+    <details class="card" open>
+      <summary>Configuração da database</summary>
+      <div class="grid grid-2" style="margin-top: 14px;">
+        <label>
+          URL do Web App do Apps Script
+          <input id="webAppUrl" type="url" placeholder="https://script.google.com/macros/s/.../exec">
+        </label>
+
+        <label>
+          Chave API_SECRET
+          <input id="apiSecret" type="password" placeholder="Cole a chave da aba CONFIG">
+        </label>
+      </div>
+
+      <div class="actions">
+        <button id="saveSettingsBtn">Salvar configurações</button>
+        <button id="testConnectionBtn" class="secondary">Testar conexão</button>
+        <button id="loadDataBtn" class="secondary">Carregar dados</button>
+      </div>
+
+      <div id="connectionStatus" class="status">Configuração salva apenas neste navegador.</div>
+    </details>
+
+    <div class="layout" style="margin-top: 16px;">
+      <section class="section-stack">
+        <section class="card">
+          <h2>Expediente</h2>
+
+          <div class="grid grid-3">
+            <label>
+              Data
+              <input id="workDate" type="date">
+            </label>
+
+            <label>
+              Chegada
+              <input id="arrivalTime" type="time" value="10:00">
+            </label>
+
+            <label>
+              Saída real
+              <input id="endTime" type="time">
+            </label>
+          </div>
+
+          <div class="grid grid-3" style="margin-top: 12px;">
+            <label>
+              Jornada desejada
+              <input id="target" type="text" value="08:00" placeholder="08:00, 8h, 480">
+            </label>
+
+            <label>
+              Pausa/almoço feito
+              <input id="breakMinutes" type="number" value="0" min="0" step="1">
+            </label>
+
+            <label>
+              Saldo inicial
+              <input id="initialBalance" type="text" value="0" placeholder="+30, -45, +01:00">
+            </label>
+          </div>
+
+          <label style="margin-top: 12px;">
+            Observações
+            <textarea id="dayNotes" placeholder="Ex.: dia com reunião, compensação, atraso, consulta etc."></textarea>
+          </label>
+
+          <div class="actions">
+            <button id="saveDayBtn">Salvar expediente</button>
+            <button id="closeDayBtn" class="warning">Encerrar dia agora</button>
+            <button id="clearDayBtn" class="secondary">Limpar campos</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Progresso do dia</h2>
+
+          <div id="percent" class="percent">0%</div>
+
+          <div class="bar-wrap">
+            <div id="bar" class="bar"></div>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <span>Trabalhado</span>
+              <strong id="workedLabel">0h00</strong>
+            </div>
+
+            <div class="stat">
+              <span>Meta efetiva</span>
+              <strong id="effectiveTargetLabel">8h00</strong>
+            </div>
+
+            <div class="stat">
+              <span>Saída prevista</span>
+              <strong id="predictedEndLabel">--:--</strong>
+            </div>
+
+            <div class="stat">
+              <span>Saldo do dia</span>
+              <strong id="dayBalanceLabel">0h00</strong>
+            </div>
+          </div>
+
+          <div id="progressStatus" class="status"></div>
+        </section>
+
+        <section class="card">
+          <h2>Histórico</h2>
+          <div id="historyList" class="history-list"></div>
+        </section>
+      </section>
+
+      <section class="section-stack">
+        <section class="card">
+          <h2>Tarefas do dia</h2>
+
+          <input id="taskId" type="hidden">
+
+          <div class="grid grid-2">
+            <label>
+              Tarefa
+              <input id="taskTitle" type="text" placeholder="Ex.: consolidar planilha">
+            </label>
+
+            <label>
+              Categoria
+              <input id="taskCategory" type="text" placeholder="Ex.: orçamento, e-mail, reunião">
+            </label>
+          </div>
+
+          <div class="grid grid-3" style="margin-top: 12px;">
+            <label>
+              Status
+              <select id="taskStatus">
+                <option value="pendente">Pendente</option>
+                <option value="em_andamento">Em andamento</option>
+                <option value="concluida">Concluída</option>
+                <option value="cancelada">Cancelada</option>
+              </select>
+            </label>
+
+            <label>
+              Início previsto
+              <input id="plannedStart" type="datetime-local">
+            </label>
+
+            <label>
+              Término previsto
+              <input id="plannedEnd" type="datetime-local">
+            </label>
+          </div>
+
+          <div class="grid grid-2" style="margin-top: 12px;">
+            <label>
+              Início real
+              <input id="actualStart" type="datetime-local">
+            </label>
+
+            <label>
+              Término real
+              <input id="actualEnd" type="datetime-local">
+            </label>
+          </div>
+
+          <label style="margin-top: 12px;">
+            Descrição / observações da tarefa
+            <textarea id="taskDescription" placeholder="Opcional"></textarea>
+          </label>
+
+          <div class="actions">
+            <button id="saveTaskBtn">Salvar tarefa</button>
+            <button id="clearTaskBtn" class="secondary">Nova tarefa / limpar</button>
+          </div>
+
+          <div id="taskList" class="task-list"></div>
+        </section>
+
+        <section class="card">
+          <h2>Calendário do dia</h2>
+          <p class="muted">Linha do tempo das tarefas planejadas e realizadas na data selecionada.</p>
+          <div id="timeline" class="timeline"></div>
+        </section>
+      </section>
+    </div>
+  </main>
+
+  <iframe id="postSink" name="postSink" class="hidden"></iframe>
+
+  <script>
+    const STORAGE_KEY = "controle-expediente-google-sheets-v1";
+
+    const state = {
+      days: [],
+      tasks: [],
+      sessions: [],
+      currentDayId: null,
+      alarms: {
+        enabled: false,
+        lastThreshold: 0,
+        done: false,
+        audio: null
+      }
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+
+    const els = {
+      webAppUrl: $("#webAppUrl"),
+      apiSecret: $("#apiSecret"),
+      saveSettingsBtn: $("#saveSettingsBtn"),
+      testConnectionBtn: $("#testConnectionBtn"),
+      loadDataBtn: $("#loadDataBtn"),
+      connectionStatus: $("#connectionStatus"),
+
+      workDate: $("#workDate"),
+      arrivalTime: $("#arrivalTime"),
+      endTime: $("#endTime"),
+      target: $("#target"),
+      breakMinutes: $("#breakMinutes"),
+      initialBalance: $("#initialBalance"),
+      dayNotes: $("#dayNotes"),
+      saveDayBtn: $("#saveDayBtn"),
+      closeDayBtn: $("#closeDayBtn"),
+      clearDayBtn: $("#clearDayBtn"),
+
+      percent: $("#percent"),
+      bar: $("#bar"),
+      workedLabel: $("#workedLabel"),
+      effectiveTargetLabel: $("#effectiveTargetLabel"),
+      predictedEndLabel: $("#predictedEndLabel"),
+      dayBalanceLabel: $("#dayBalanceLabel"),
+      progressStatus: $("#progressStatus"),
+      historyList: $("#historyList"),
+
+      taskId: $("#taskId"),
+      taskTitle: $("#taskTitle"),
+      taskCategory: $("#taskCategory"),
+      taskStatus: $("#taskStatus"),
+      plannedStart: $("#plannedStart"),
+      plannedEnd: $("#plannedEnd"),
+      actualStart: $("#actualStart"),
+      actualEnd: $("#actualEnd"),
+      taskDescription: $("#taskDescription"),
+      saveTaskBtn: $("#saveTaskBtn"),
+      clearTaskBtn: $("#clearTaskBtn"),
+      taskList: $("#taskList"),
+      timeline: $("#timeline")
+    };
+
+    function todayString() {
+      const d = new Date();
+      return [
+        d.getFullYear(),
+        String(d.getMonth() + 1).padStart(2, "0"),
+        String(d.getDate()).padStart(2, "0")
+      ].join("-");
+    }
+
+    function toLocalDateTimeInput(date) {
+      const d = new Date(date);
+      d.setSeconds(0, 0);
+      return [
+        d.getFullYear(),
+        String(d.getMonth() + 1).padStart(2, "0"),
+        String(d.getDate()).padStart(2, "0")
+      ].join("-") + "T" + [
+        String(d.getHours()).padStart(2, "0"),
+        String(d.getMinutes()).padStart(2, "0")
+      ].join(":");
+    }
+
+    function parseDurationToMinutes(value) {
+      const original = String(value || "").trim().toLowerCase();
+      if (!original) return 0;
+
+      const sign = original.startsWith("-") ? -1 : 1;
+      const clean = original.replace(/^[+-]/, "").replace(",", ".");
+
+      if (clean.includes(":")) {
+        const [h, m = "0"] = clean.split(":");
+        return sign * ((Number(h) || 0) * 60 + (Number(m) || 0));
+      }
+
+      const hourMatch = clean.match(/(\d+(?:\.\d+)?)\s*h(?:\s*(\d+))?/);
+      if (hourMatch) {
+        const hours = Number(hourMatch[1]) || 0;
+        const extraMinutes = Number(hourMatch[2]) || 0;
+        return sign * Math.round(hours * 60 + extraMinutes);
+      }
+
+      const number = Number(clean);
+      if (!Number.isFinite(number)) return 0;
+      if (Math.abs(number) <= 12) return sign * Math.round(number * 60);
+      return sign * Math.round(number);
+    }
+
+    function minutesToLabel(totalMinutes) {
+      const sign = Number(totalMinutes) < 0 ? "-" : "";
+      const abs = Math.abs(Math.round(Number(totalMinutes) || 0));
+      const h = Math.floor(abs / 60);
+      const m = abs % 60;
+      return `${sign}${h}h${String(m).padStart(2, "0")}`;
+    }
+
+    function timeToDate(dateString, timeString) {
+      const d = new Date(`${dateString}T${timeString || "00:00"}:00`);
+      return d;
+    }
+
+    function dateTimeToTimeLabel(value) {
+      if (!value) return "--:--";
+      const date = new Date(value);
+      if (isNaN(date.getTime())) {
+        return String(value).slice(11, 16) || "--:--";
+      }
+      return date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function formatDate(value) {
+      if (!value) return "";
+      const [y, m, d] = String(value).slice(0, 10).split("-");
+      return `${d}/${m}/${y}`;
+    }
+
+    function formatDateTime(value) {
+      if (!value) return "--";
+      const raw = String(value);
+      const day = raw.slice(0, 10);
+      const time = raw.slice(11, 16);
+      return `${formatDate(day)} ${time}`;
+    }
+
+    function statusLabel(status) {
+      return {
+        pendente: "Pendente",
+        em_andamento: "Em andamento",
+        concluida: "Concluída",
+        cancelada: "Cancelada"
+      }[status] || status || "Pendente";
+    }
+
+    function statusClass(status) {
+      if (status === "concluida") return "ok";
+      if (status === "em_andamento") return "warn";
+      if (status === "cancelada") return "danger";
+      return "";
+    }
+
+    function saveSettings() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        webAppUrl: els.webAppUrl.value.trim(),
+        apiSecret: els.apiSecret.value.trim()
+      }));
+      setConnectionStatus("Configurações salvas neste navegador.");
+    }
+
+    function loadSettings() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const settings = JSON.parse(raw);
+        els.webAppUrl.value = settings.webAppUrl || "";
+        els.apiSecret.value = settings.apiSecret || "";
+      } catch {}
+    }
+
+    function getSettings() {
+      const webAppUrl = els.webAppUrl.value.trim();
+      const apiSecret = els.apiSecret.value.trim();
+
+      if (!webAppUrl || !apiSecret) {
+        throw new Error("Informe a URL do Web App e a API_SECRET.");
+      }
+
+      return { webAppUrl, apiSecret };
+    }
+
+    function setConnectionStatus(message) {
+      els.connectionStatus.textContent = message;
+    }
+
+    function jsonp(action, extra = {}) {
+      const { webAppUrl, apiSecret } = getSettings();
+
+      return new Promise((resolve, reject) => {
+        const callbackName = "__controleExpedienteCb_" + Date.now() + "_" + Math.random().toString(16).slice(2);
+        const script = document.createElement("script");
+        const url = new URL(webAppUrl);
+
+        url.searchParams.set("action", action);
+        url.searchParams.set("secret", apiSecret);
+        url.searchParams.set("callback", callbackName);
+
+        for (const [key, value] of Object.entries(extra)) {
+          url.searchParams.set(key, value);
+        }
+
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error("Tempo esgotado ao consultar o Apps Script."));
+        }, 10000);
+
+        function cleanup() {
+          clearTimeout(timeout);
+          delete window[callbackName];
+          script.remove();
+        }
+
+        window[callbackName] = (response) => {
+          cleanup();
+          if (!response || !response.ok) {
+            reject(new Error(response && response.error ? response.error : "Erro desconhecido."));
+            return;
+          }
+          resolve(response);
+        };
+
+        script.onerror = () => {
+          cleanup();
+          reject(new Error("Falha ao carregar resposta do Apps Script."));
+        };
+
+        script.src = url.toString();
+        document.body.appendChild(script);
+      });
+    }
+
+    async function postAction(action, payload = {}) {
+      const { webAppUrl, apiSecret } = getSettings();
+
+      const frame = $("#postSink");
+      const form = document.createElement("form");
+
+      form.method = "POST";
+      form.action = webAppUrl;
+      form.target = "postSink";
+      form.style.display = "none";
+
+      const fields = {
+        secret: apiSecret,
+        action,
+        payload: JSON.stringify(payload)
+      };
+
+      for (const [name, value] of Object.entries(fields)) {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      }
+
+      document.body.appendChild(form);
+
+      await new Promise((resolve) => {
+        let resolved = false;
+
+        const finish = () => {
+          if (resolved) return;
+          resolved = true;
+          resolve();
+        };
+
+        frame.onload = finish;
+        form.submit();
+        setTimeout(finish, 1400);
+      });
+
+      form.remove();
+    }
+
+    async function loadData() {
+      setConnectionStatus("Carregando dados...");
+      const response = await jsonp("getAll");
+
+      state.days = response.data.days || [];
+      state.tasks = response.data.tasks || [];
+      state.sessions = response.data.sessions || [];
+
+      loadSelectedDayIntoForm();
+      renderAll();
+
+      setConnectionStatus("Dados carregados da planilha.");
+    }
+
+    async function testConnection() {
+      setConnectionStatus("Testando conexão...");
+      const response = await jsonp("ping");
+      setConnectionStatus(response.message || "Conexão funcionando.");
+    }
+
+    function selectedDate() {
+      return els.workDate.value || todayString();
+    }
+
+    function findDay(date = selectedDate()) {
+      return state.days.find(day => String(day.date).slice(0, 10) === String(date));
+    }
+
+    function currentDayFormData() {
+      const date = selectedDate();
+      const targetMinutes = Math.max(1, parseDurationToMinutes(els.target.value));
+      const breakMinutes = Math.max(0, Number(els.breakMinutes.value || 0));
+      const initialBalanceMinutes = parseDurationToMinutes(els.initialBalance.value);
+      const effectiveTarget = Math.max(1, targetMinutes - initialBalanceMinutes);
+
+      let workedMinutes = "";
+      let dayBalanceMinutes = "";
+
+      if (els.endTime.value) {
+        const arrival = timeToDate(date, els.arrivalTime.value);
+        const end = timeToDate(date, els.endTime.value);
+        let rawWorked = Math.round((end - arrival) / 60000) - breakMinutes;
+        rawWorked = Math.max(0, rawWorked);
+        workedMinutes = rawWorked;
+        dayBalanceMinutes = rawWorked - effectiveTarget;
+      }
+
+      return {
+        id: state.currentDayId || "",
+        date,
+        arrivalTime: els.arrivalTime.value,
+        targetMinutes,
+        breakMinutes,
+        initialBalanceMinutes,
+        endTime: els.endTime.value,
+        workedMinutes,
+        dayBalanceMinutes,
+        notes: els.dayNotes.value.trim()
+      };
+    }
+
+    function getProgressState() {
+      const date = selectedDate();
+      const targetMinutes = Math.max(1, parseDurationToMinutes(els.target.value));
+      const breakMinutes = Math.max(0, Number(els.breakMinutes.value || 0));
+      const initialBalanceMinutes = parseDurationToMinutes(els.initialBalance.value);
+      const effectiveTarget = Math.max(1, targetMinutes - initialBalanceMinutes);
+
+      const arrival = timeToDate(date, els.arrivalTime.value);
+      let reference;
+
+      if (els.endTime.value) {
+        reference = timeToDate(date, els.endTime.value);
+      } else if (date === todayString()) {
+        reference = new Date();
+      } else {
+        reference = arrival;
+      }
+
+      const workedMinutes = Math.max(0, Math.round((reference - arrival) / 60000) - breakMinutes);
+      const percent = (workedMinutes / effectiveTarget) * 100;
+      const predictedEnd = new Date(arrival.getTime() + (breakMinutes + effectiveTarget) * 60000);
+      const dayBalance = workedMinutes - effectiveTarget;
+
+      return {
+        targetMinutes,
+        breakMinutes,
+        initialBalanceMinutes,
+        effectiveTarget,
+        workedMinutes,
+        percent,
+        predictedEnd,
+        dayBalance
+      };
+    }
+
+    function updateProgress() {
+      const progress = getProgressState();
+      const visual = Math.max(0, Math.min(100, progress.percent));
+      const rounded = Math.max(0, progress.percent).toFixed(1).replace(".", ",");
+
+      els.percent.textContent = `${rounded}%`;
+      els.bar.style.width = `${visual}%`;
+      els.workedLabel.textContent = minutesToLabel(progress.workedMinutes);
+      els.effectiveTargetLabel.textContent = minutesToLabel(progress.effectiveTarget);
+      els.predictedEndLabel.textContent = progress.predictedEnd.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+      els.dayBalanceLabel.textContent = minutesToLabel(progress.dayBalance);
+
+      if (progress.percent >= 100) {
+        els.progressStatus.textContent = "Meta do dia atingida.";
+      } else if (selectedDate() !== todayString() && !els.endTime.value) {
+        els.progressStatus.textContent = "Dia passado sem saída real registrada.";
+      } else {
+        els.progressStatus.textContent = `Faltam ${minutesToLabel(progress.effectiveTarget - progress.workedMinutes)} para 100%.`;
+      }
+    }
+
+    function loadSelectedDayIntoForm() {
+      const day = findDay();
+
+      if (!day) {
+        state.currentDayId = null;
+        els.arrivalTime.value = els.arrivalTime.value || "10:00";
+        els.endTime.value = "";
+        els.target.value = "08:00";
+        els.breakMinutes.value = "0";
+        els.initialBalance.value = "0";
+        els.dayNotes.value = "";
+        return;
+      }
+
+      state.currentDayId = day.id;
+      els.arrivalTime.value = day.arrivalTime || "10:00";
+      els.endTime.value = day.endTime || "";
+      els.target.value = minutesToHHMM(day.targetMinutes || 480);
+      els.breakMinutes.value = day.breakMinutes || 0;
+      els.initialBalance.value = minutesToSignedHHMM(day.initialBalanceMinutes || 0);
+      els.dayNotes.value = day.notes || "";
+    }
+
+    function minutesToHHMM(minutes) {
+      const value = Math.max(0, Number(minutes) || 0);
+      const h = Math.floor(value / 60);
+      const m = value % 60;
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+    }
+
+    function minutesToSignedHHMM(minutes) {
+      const value = Number(minutes) || 0;
+      const sign = value > 0 ? "+" : value < 0 ? "-" : "";
+      const abs = Math.abs(value);
+      const h = Math.floor(abs / 60);
+      const m = abs % 60;
+      if (h === 0) return `${sign}${m}`;
+      return `${sign}${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+    }
+
+    async function saveDay() {
+      const data = currentDayFormData();
+      await postAction("upsertWorkDay", data);
+      await loadData();
+      setConnectionStatus("Expediente salvo na planilha.");
+    }
+
+    async function closeDayNow() {
+      els.endTime.value = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+      await saveDay();
+    }
+
+    function clearDayForm() {
+      state.currentDayId = null;
+      els.endTime.value = "";
+      els.target.value = "08:00";
+      els.breakMinutes.value = "0";
+      els.initialBalance.value = "0";
+      els.dayNotes.value = "";
+      updateProgress();
+    }
+
+    function taskFormData() {
+      const actualStart = els.actualStart.value;
+      const actualEnd = els.actualEnd.value;
+      let durationMinutes = "";
+
+      if (actualStart && actualEnd) {
+        durationMinutes = Math.max(0, Math.round((new Date(actualEnd) - new Date(actualStart)) / 60000));
+      }
+
+      return {
+        id: els.taskId.value,
+        date: selectedDate(),
+        title: els.taskTitle.value.trim(),
+        description: els.taskDescription.value.trim(),
+        status: els.taskStatus.value,
+        category: els.taskCategory.value.trim(),
+        plannedStart: els.plannedStart.value,
+        plannedEnd: els.plannedEnd.value,
+        actualStart,
+        actualEnd,
+        durationMinutes
+      };
+    }
+
+    async function saveTask() {
+      const data = taskFormData();
+
+      if (!data.title) {
+        setConnectionStatus("Informe o título da tarefa.");
+        return;
+      }
+
+      await postAction("upsertTask", data);
+      clearTaskForm();
+      await loadData();
+      setConnectionStatus("Tarefa salva na planilha.");
+    }
+
+    function clearTaskForm() {
+      els.taskId.value = "";
+      els.taskTitle.value = "";
+      els.taskCategory.value = "";
+      els.taskStatus.value = "pendente";
+      els.plannedStart.value = "";
+      els.plannedEnd.value = "";
+      els.actualStart.value = "";
+      els.actualEnd.value = "";
+      els.taskDescription.value = "";
+    }
+
+    function editTask(id) {
+      const task = state.tasks.find(item => String(item.id) === String(id));
+      if (!task) return;
+
+      els.taskId.value = task.id || "";
+      els.taskTitle.value = task.title || "";
+      els.taskCategory.value = task.category || "";
+      els.taskStatus.value = task.status || "pendente";
+      els.plannedStart.value = normalizeDateTimeInput(task.plannedStart);
+      els.plannedEnd.value = normalizeDateTimeInput(task.plannedEnd);
+      els.actualStart.value = normalizeDateTimeInput(task.actualStart);
+      els.actualEnd.value = normalizeDateTimeInput(task.actualEnd);
+      els.taskDescription.value = task.description || "";
+
+      window.scrollTo({ top: els.taskTitle.getBoundingClientRect().top + window.scrollY - 120, behavior: "smooth" });
+    }
+
+    function normalizeDateTimeInput(value) {
+      if (!value) return "";
+      return String(value).slice(0, 16);
+    }
+
+    async function startTask(id) {
+      await postAction("startTask", {
+        id,
+        startedAt: toLocalDateTimeInput(new Date())
+      });
+      await loadData();
+      setConnectionStatus("Tarefa iniciada.");
+    }
+
+    async function finishTask(id) {
+      await postAction("finishTask", {
+        id,
+        endedAt: toLocalDateTimeInput(new Date())
+      });
+      await loadData();
+      setConnectionStatus("Tarefa finalizada.");
+    }
+
+    async function deleteTask(id) {
+      if (!confirm("Excluir esta tarefa e suas sessões?")) return;
+      await postAction("deleteTask", { id });
+      await loadData();
+      setConnectionStatus("Tarefa excluída.");
+    }
+
+    function tasksForSelectedDate() {
+      return state.tasks
+        .filter(task => String(task.date).slice(0, 10) === selectedDate())
+        .sort((a, b) => {
+          const aTime = a.plannedStart || a.actualStart || a.createdAt || "";
+          const bTime = b.plannedStart || b.actualStart || b.createdAt || "";
+          return String(aTime).localeCompare(String(bTime));
+        });
+    }
+
+    function renderTasks() {
+      const tasks = tasksForSelectedDate();
+
+      if (!tasks.length) {
+        els.taskList.innerHTML = `<div class="task muted">Nenhuma tarefa registrada para esta data.</div>`;
+        return;
+      }
+
+      els.taskList.innerHTML = tasks.map(task => {
+        const duration = Number(task.durationMinutes || 0);
+        const planned = task.plannedStart || task.plannedEnd
+          ? `${formatDateTime(task.plannedStart)} → ${formatDateTime(task.plannedEnd)}`
+          : "Sem horário planejado";
+        const actual = task.actualStart || task.actualEnd
+          ? `${formatDateTime(task.actualStart)} → ${formatDateTime(task.actualEnd)}`
+          : "Ainda sem registro real";
+
+        return `
+          <article class="task">
+            <div class="task-head">
+              <div>
+                <div class="task-title">${escapeHtml(task.title)}</div>
+                <div class="meta">
+                  ${task.category ? escapeHtml(task.category) + " · " : ""}
+                  Planejado: ${planned}<br>
+                  Real: ${actual}<br>
+                  Duração registrada: <strong>${minutesToLabel(duration)}</strong>
+                </div>
+              </div>
+              <span class="badge ${statusClass(task.status)}">${statusLabel(task.status)}</span>
+            </div>
+
+            ${task.description ? `<div class="meta">${escapeHtml(task.description)}</div>` : ""}
+
+            <div class="small-actions">
+              <button class="secondary" onclick="editTask('${task.id}')">Editar</button>
+              <button class="warning" onclick="startTask('${task.id}')" ${task.status === "em_andamento" ? "disabled" : ""}>Iniciar</button>
+              <button onclick="finishTask('${task.id}')" ${task.status === "concluida" ? "disabled" : ""}>Finalizar</button>
+              <button class="danger" onclick="deleteTask('${task.id}')">Excluir</button>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderTimeline() {
+      const tasks = tasksForSelectedDate();
+
+      if (!tasks.length) {
+        els.timeline.innerHTML = `<div class="timeline-item muted">Sem tarefas para montar a linha do tempo.</div>`;
+        return;
+      }
+
+      els.timeline.innerHTML = tasks.map(task => {
+        const start = task.actualStart || task.plannedStart;
+        const end = task.actualEnd || task.plannedEnd;
+        const duration = task.durationMinutes ? minutesToLabel(task.durationMinutes) : "sem duração";
+
+        return `
+          <div class="timeline-item">
+            <strong>${start ? dateTimeToTimeLabel(start) : "--:--"} → ${end ? dateTimeToTimeLabel(end) : "--:--"}</strong>
+            <div class="meta">
+              ${escapeHtml(task.title)} · ${statusLabel(task.status)} · ${duration}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderHistory() {
+      const days = [...state.days].sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 20);
+
+      if (!days.length) {
+        els.historyList.innerHTML = `<div class="history-item muted">Nenhum dia salvo ainda.</div>`;
+        return;
+      }
+
+      els.historyList.innerHTML = days.map(day => {
+        const target = Number(day.targetMinutes || 480);
+        const balance = Number(day.initialBalanceMinutes || 0);
+        const effective = Math.max(1, target - balance);
+        const worked = Number(day.workedMinutes || 0);
+        const dayBalance = day.dayBalanceMinutes !== "" ? Number(day.dayBalanceMinutes || 0) : worked - effective;
+
+        return `
+          <article class="history-item">
+            <div class="history-head">
+              <div>
+                <strong>${formatDate(day.date)}</strong>
+                <div class="meta">
+                  Chegada: ${day.arrivalTime || "--:--"} · Saída: ${day.endTime || "--:--"}<br>
+                  Trabalhado: ${minutesToLabel(worked)} · Meta efetiva: ${minutesToLabel(effective)}
+                </div>
+              </div>
+              <span class="badge ${dayBalance >= 0 ? "ok" : "danger"}">${minutesToLabel(dayBalance)}</span>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function renderAll() {
+      updateProgress();
+      renderTasks();
+      renderTimeline();
+      renderHistory();
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function setDefaultPlannedTimes() {
+      const date = selectedDate();
+      const now = new Date();
+
+      if (date === todayString()) {
+        els.plannedStart.value = toLocalDateTimeInput(now);
+        const end = new Date(now.getTime() + 60 * 60000);
+        els.plannedEnd.value = toLocalDateTimeInput(end);
+      } else {
+        els.plannedStart.value = `${date}T09:00`;
+        els.plannedEnd.value = `${date}T10:00`;
+      }
+    }
+
+    function setupEvents() {
+      els.saveSettingsBtn.addEventListener("click", saveSettings);
+
+      els.testConnectionBtn.addEventListener("click", async () => {
+        try {
+          saveSettings();
+          await testConnection();
+        } catch (err) {
+          setConnectionStatus(err.message);
+        }
+      });
+
+      els.loadDataBtn.addEventListener("click", async () => {
+        try {
+          saveSettings();
+          await loadData();
+        } catch (err) {
+          setConnectionStatus(err.message);
+        }
+      });
+
+      els.saveDayBtn.addEventListener("click", async () => {
+        try {
+          await saveDay();
+        } catch (err) {
+          setConnectionStatus(err.message);
+        }
+      });
+
+      els.closeDayBtn.addEventListener("click", async () => {
+        try {
+          await closeDayNow();
+        } catch (err) {
+          setConnectionStatus(err.message);
+        }
+      });
+
+      els.clearDayBtn.addEventListener("click", clearDayForm);
+
+      els.saveTaskBtn.addEventListener("click", async () => {
+        try {
+          await saveTask();
+        } catch (err) {
+          setConnectionStatus(err.message);
+        }
+      });
+
+      els.clearTaskBtn.addEventListener("click", () => {
+        clearTaskForm();
+        setDefaultPlannedTimes();
+      });
+
+      els.workDate.addEventListener("change", () => {
+        loadSelectedDayIntoForm();
+        clearTaskForm();
+        setDefaultPlannedTimes();
+        renderAll();
+      });
+
+      [els.arrivalTime, els.endTime, els.target, els.breakMinutes, els.initialBalance].forEach(input => {
+        input.addEventListener("input", updateProgress);
+      });
+
+      window.editTask = editTask;
+      window.startTask = async (id) => {
+        try { await startTask(id); } catch (err) { setConnectionStatus(err.message); }
+      };
+      window.finishTask = async (id) => {
+        try { await finishTask(id); } catch (err) { setConnectionStatus(err.message); }
+      };
+      window.deleteTask = async (id) => {
+        try { await deleteTask(id); } catch (err) { setConnectionStatus(err.message); }
+      };
+    }
+
+    function init() {
+      loadSettings();
+
+      els.workDate.value = todayString();
+      setDefaultPlannedTimes();
+      setupEvents();
+      renderAll();
+
+      setInterval(updateProgress, 1000);
+
+      if (els.webAppUrl.value && els.apiSecret.value) {
+        loadData().catch(err => setConnectionStatus(err.message));
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>
